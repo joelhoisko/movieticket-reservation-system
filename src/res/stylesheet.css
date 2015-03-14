@@ -1,0 +1,26 @@
+/* Defines the style of the normal buttons. */
+.button {
+	-fx-background-color: #4C5BA2;
+	-fx-text-fill: white;
+}
+
+/* When a button is hovered over, this style takes place. */
+.button:hover {
+	-fx-background-color: #7684C6;
+	-fx-text-fill: white;
+}
+
+/* Defines the style of HBox(top pane). */
+.hbox {
+	-fx-background-color: #7094ff;
+}
+/* Defines the style of VBox(side pane). */
+.vbox {
+	-fx-background-color: #98AAE1;
+}
+
+/* This style is automatically given to the parent element of a scene. 
+ * Eg. new Scene(examplePane, 500, 500)  so this gets added to "examplePane". */
+.root {
+	-fx-background-color: #b8caff;
+}

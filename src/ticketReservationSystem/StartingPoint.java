@@ -1,6 +1,6 @@
 package ticketReservationSystem;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 
 import javafx.application.Application;
 import javafx.scene.layout.GridPane;
@@ -26,27 +26,35 @@ public class StartingPoint extends Application {
 	 */
 	public void start(Stage primaryStage) throws Exception {
 
+		dataBaseActions.connect();
+
 		primaryStage.setTitle("Ticket-Reservation System"); // window title
 		checkAdmins();
 		GridPane gridPane = new GridPane();
 
 		// We start the LoginScene first and go on from there.
-		LoginScene loginScene = new LoginScene(primaryStage, gridPane);
+		LoginScene loginScene = new LoginScene(primaryStage, gridPane, dataBaseActions);
 		loginScene.getStylesheets().add("res/stylesheet.css");
 
 		primaryStage.setScene(loginScene);
 		primaryStage.show();
 	}
+	/**
+	 * A method that creates the first admin with admin admin username password combination.
+	 *When an admin loggs in using these attributes, the user is asked to create a new username entirely.
+	 */
 	public void checkAdmins(){
 
-		dataBaseActions.connect();
-		UserList list = new UserList();
-		list.initializeLists();
-		String query = "SELECT * FROM users;";
-		list.parseUserList(dataBaseActions.selectQuery(query));
-		ArrayList<Admin> a = list.getAdminList();
-		if(a.size()==0){
-        dataBaseActions.addAdmin("admin","admin","admin");
+		try {
+			
+			dataBaseActions.firstTime();
+			
+		} catch (SQLException e) {
+			System.out.println("Creating the database, might take a moment");
+
+			dataBaseActions.initEverything();
+			dataBaseActions.addAdmin("admin","admin","admin");
+
 		}
 	}
 }

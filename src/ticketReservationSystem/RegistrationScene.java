@@ -1,8 +1,5 @@
 package ticketReservationSystem;
 
-import javax.management.Notification;
-import javax.xml.soap.Node;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -29,6 +26,7 @@ public class RegistrationScene extends Scene {
 	@SuppressWarnings("unused")
 	private GridPane gridPane;
 	
+	private DataBaseActions dataBaseActions;
 	private Text topTitle = new Text("Register"); 
 	private Text bottomTitle = new Text("Create a new user!");
 	
@@ -50,14 +48,16 @@ public class RegistrationScene extends Scene {
 	 * Contains the Nodes to draw when the user tries to register a new account.
 	 * @param stage
 	 * @param gridPane
+	 * @param dataBaseActions 
 	 */
-	public RegistrationScene(final Stage stage, final GridPane gridPane) {
+	public RegistrationScene(final Stage stage, final GridPane gridPane, final DataBaseActions dataBaseActions) {
 		super(gridPane);
 		// We load the CSS.
 		this.getStylesheets().add("res/stylesheet.css");
 		
 		this.gridPane = gridPane;
       
+		this.dataBaseActions = dataBaseActions;
 		
 		// fonts for both titles
 		topTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 30));
@@ -80,7 +80,7 @@ public class RegistrationScene extends Scene {
 					     
 							
 							BorderPane borderPane = new BorderPane();
-							new ReservationSystemActivities(borderPane);
+							new ReservationSystemActivities(borderPane, dataBaseActions);
 							stage.close();
 						}
 					}
@@ -92,7 +92,7 @@ public class RegistrationScene extends Scene {
 					 * can only be set as root for a just one scene.
 					 * That's why we make a new Parent node(GridPane) every time we change the scene.
 					 */
-					stage.setScene(new LoginScene(stage, new GridPane()));
+					stage.setScene(new LoginScene(stage, new GridPane(), RegistrationScene.this.dataBaseActions));
 				}
 			}
 		};
@@ -138,8 +138,8 @@ public class RegistrationScene extends Scene {
 	 */
 	private boolean createUser(String userName, String name, String password) {
 		// We connect to the database.
-		DataBaseActions dataBaseActions = new DataBaseActions();
-		dataBaseActions.connect();
+		//DataBaseActions dataBaseActions = new DataBaseActions();
+		//dataBaseActions.connect();
 
 		UserList userList = new UserList();
 		userList.initializeLists();
@@ -163,10 +163,12 @@ public class RegistrationScene extends Scene {
 			// If we catch the exception, we know that the userName is unique.
 			System.out.println("Creating user...");
 			// Creates a new Customer into the customerList.
-			userList.addCustomer(new Customer(userName, name, password));
+			Customer customer = new Customer(userName, name, password);
+			userList.addCustomer(customer);
 			// Adds the Customer safely into the database.
 			dataBaseActions.addCustomer(userName, name, password);
-
+			
+			LoginScene.GLOBAL_USER = customer;
 			return true;	
 		}
 		return false;

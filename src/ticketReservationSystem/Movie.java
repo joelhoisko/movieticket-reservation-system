@@ -1,13 +1,12 @@
 package ticketReservationSystem;
 
-import java.util.ArrayList;
 
 public class Movie {
 
 	private String name;
 	private int length;
 	
-	private ArrayList<Show> shows;
+
 	
 	public Movie(String name, int length) {
 		this.name = name;
@@ -32,14 +31,5 @@ public class Movie {
 	public void setLength(int length) {
 		this.length = length;
 	}
-
-	public ArrayList<Show> getShows() {
-		return shows;
-	}
-
-	public void setShows(ArrayList<Show> shows) {
-		this.shows = shows;
-	}
-	
 	
 }

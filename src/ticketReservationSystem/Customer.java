@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class Customer extends User {
 	
-	private ArrayList<Reservation> reservationList;
+	private ArrayList<Reservation> reservationList = new ArrayList<Reservation>();
 	
 	private final static boolean permission = false;
 
@@ -36,8 +36,8 @@ public class Customer extends User {
 	 * @param customer
 	 */
 	public void makeReservation(int iD, Theater theater, Show show, ArrayList<Seat> seats, Customer customer) {
-		Reservation reservation = new Reservation(iD, theater, show, seats, this);
-		reservationList.add(reservation);
+		//Reservation reservation = new Reservation(iD, theater, show, seats, this);
+		//reservationList.add(reservation);
 	}
 
 }

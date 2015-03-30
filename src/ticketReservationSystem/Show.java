@@ -8,14 +8,16 @@ package ticketReservationSystem;
  */
 public class Show {
 
+	private int iD;
 	private Movie movie;
 	private Hall hall;
 	private String time;
 	
-	public Show(Movie movie, Hall hall, String time) {
+	public Show(Movie movie, Hall hall, String time, int iD) {
 		this.movie = movie;
 		this.hall = hall;
 		this.time = time;
+		this.iD = iD;
 	}
 	
 	/* GetSet */
@@ -42,6 +44,10 @@ public class Show {
 
 	public void setTime(String time) {
 		this.time = time;
+	}
+
+	public int getId() {
+		return iD;
 	}
 	
 }

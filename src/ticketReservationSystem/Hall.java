@@ -14,25 +14,24 @@ import java.util.ArrayList;
 
 public class Hall{
 	
-	private int hallNumber;
+	private int hallID;
 	
 	private ArrayList<Show> ownShows;
 	private ArrayList<Seat> seats;
 	
-	public Hall(int hallNumber, ArrayList<Show> ownShows, ArrayList<Seat> seats) {
-		this.hallNumber = hallNumber;
-		this.ownShows = ownShows;
-		this.seats = seats;
+	public Hall(int hallNumber) {
+		this.hallID = hallNumber;
+	
 	}
 	
 	/* get set */
 
 	public int getHallNumber() {
-		return hallNumber;
+		return hallID;
 	}
 
 	public void setHallNumber(int hallNumber) {
-		this.hallNumber = hallNumber;
+		this.hallID = hallNumber;
 	}
 
 	public ArrayList<Show> getOwnShows() {

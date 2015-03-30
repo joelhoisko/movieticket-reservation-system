@@ -23,20 +23,20 @@ import javafx.stage.Stage;
  *
  */
 public class LoginScene extends Scene {
-	
-	private DataBaseActions dataBaseActions = new DataBaseActions();
-	
+
+	private DataBaseActions dataBaseActions;
+	public static Customer GLOBAL_USER;
 	private GridPane gridPane;
-	
+
 	private Text topTitle = new Text("Ticket Reservation System"); 
 	private Text bottomTitle = new Text("Login");
-	
+
 	private Label usernameLabel = new Label("User Name");
 	private Label passwordLabel = new Label("Password");
-	
+
 	final private TextField usernameField = new TextField();
 	final private PasswordField passwordField = new PasswordField();
-	
+
 	final private Button loginButton = new Button("Login");
 	final private Button createAccountButton = new Button("Create account");
 	final private Button exitButton = new Button("Exit");
@@ -45,13 +45,14 @@ public class LoginScene extends Scene {
 	 * Contains the Nodes to draw on the login-screen.
 	 * @param stage
 	 * @param gridPane
+	 * @param dataBaseActions2 
 	 */
-	public LoginScene(final Stage stage, final GridPane gridPane) {
+	public LoginScene(final Stage stage, final GridPane gridPane, DataBaseActions dataBaseActions2) {
 		super(gridPane);
 		// We load the CSS.
 		this.getStylesheets().add("res/stylesheet.css");
-		//this.dataBaseActions = new DataBaseActions();
-		
+		this.dataBaseActions = dataBaseActions2;
+		//this.dataBaseActions.connect();
 		this.gridPane = gridPane;
 
 		gridPane.setAlignment(Pos.TOP_CENTER); // grids position in stage
@@ -69,29 +70,21 @@ public class LoginScene extends Scene {
 			public void handle(ActionEvent event) {
 				if (event.getSource() == loginButton) {
 
-					// Returns true if everything goes fine, but we still just ignore it.
+					// Returns true if everything goes fine.
 					if (loginChecker(usernameField.getText(), passwordField.getText())) {
 
-						/*
-						 * In the case that the user logs off and reloggs it throws an error 
-						 * about scenes having only one root element.
-						 * That's why we need to give it a new BorderPane every time, 
-						 * the same one cannot be used multiple times.
-						 * And then we close ourselves after the new window has opened.
-						 */
-						if(isAdmin(usernameField.getText())){
+						if (isAdmin(usernameField.getText())) {
 							BorderPane Panel = new BorderPane();
-							dataBaseActions.closeAll();
-							new AdminSystemActivities(Panel);
-							stage.close();
 							
-						}else{
-						BorderPane borderPane = new BorderPane();
-						// Just to be sure, we close the connection to the database too.
-						dataBaseActions.closeAll();
-						new ReservationSystemActivities(borderPane);
-						stage.close();
-					}
+							new AdminSystemActivities(Panel, usernameField.getText(), dataBaseActions);
+							stage.close();
+
+						} else {
+							BorderPane borderPane = new BorderPane();
+							// Just to be sure, we close the connection to the database too.
+							new ReservationSystemActivities(borderPane, dataBaseActions);
+							stage.close();
+						}
 					}
 				}
 				if (event.getSource() == createAccountButton) {
@@ -100,7 +93,7 @@ public class LoginScene extends Scene {
 					 * can only be set as root for a just one scene.
 					 * That's why we make a new Parent node(GridPane) every time we change the scene.
 					 */
-					stage.setScene(new RegistrationScene(stage, new GridPane()));
+					stage.setScene(new RegistrationScene(stage, new GridPane(), dataBaseActions));
 				}
 				if (event.getSource() == exitButton) {
 					// Just to be sure, we close the connection to the database too.
@@ -132,17 +125,17 @@ public class LoginScene extends Scene {
 	}
 
 	/**
-	 * Creates a new dataBaseActions, connects to the database/creates it 
-	 * and runs a check on users. If a user with the matching credentials 
-	 * is found, return true. Otherwise, false.
+	 * Creates a new dataBaseActions, connects to the database and runs a check on users. 
+	 * If a user with the matching credentials is found, return true. 
+	 * Otherwise, returns false and notifies the user of wrong credentials.
 	 * @param userName
 	 * @param password
 	 */
 	private boolean loginChecker(String userName, String password) {
-		dataBaseActions.connect();
+		
 		UserList userList = new UserList();
 		userList.initializeLists();
-		
+
 		String query = "SELECT * FROM users;";
 		userList.parseUserList(dataBaseActions.selectQuery(query));
 
@@ -151,10 +144,11 @@ public class LoginScene extends Scene {
 			if (userName.equals(userList.getUser(userName).getUserName()) 
 					&& password.equals(userList.getUser(userName).getPassword())) {
 				System.out.println("Match!");
+				GLOBAL_USER = new Customer(userName, userList.getUser(userName).getName(), password) {
+				};
 				return true;
 			}
 		} catch (UserNotFoundException e) {
-			GridPane p = new GridPane();
 			System.out.println("User not found");
 			usernameField.clear();
 			passwordField.clear();
@@ -165,24 +159,27 @@ public class LoginScene extends Scene {
 		return false;
 	}
 	/**
-	 *  Checks if a user has admin status. IF yes, true is returned otherwise false.
+	 *  Checks if a user has admin status. If yes, true is returned, otherwise false.
 	 * @param userName
 	 * @return boolean
 	 */
 	public boolean isAdmin(String userName){
-		dataBaseActions.connect();
-		UserList list = new UserList();
-		list.initializeLists();
+		//dataBaseActions.connect();
+		UserList userList = new UserList();
+		userList.initializeLists();
 		String query = "SELECT * FROM users;";
-		list.parseUserList(dataBaseActions.selectQuery(query));
+		userList.parseUserList(dataBaseActions.selectQuery(query));
 		try {
-			if(list.getUser(userName).getPermission() == true){
+			if(userList.getUser(userName).getPermission() == true){
 				return true;
 			}
 		} catch (UserNotFoundException e) {
-			
+
 			e.printStackTrace();
 		}
 		return false;
 	}
+
+
+
 }

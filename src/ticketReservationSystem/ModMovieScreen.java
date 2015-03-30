@@ -2,30 +2,38 @@ package ticketReservationSystem;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
-/*
+/**
  * Screen added to the AdminSystemActivites-stage when admin presses the button "Modify movies".
+ * @author joel
+ *
  */
-
 public class ModMovieScreen {
-	private HBox buttons;
+	private DataBaseActions dataBaseActions;
+	private HBox hBox;
+	private final GridPane gridPane;
+	private String modMovieName;
+	
 	private final Button addMovieButton = new Button("Add movie");
 	private final Button modifyMovieButton = new Button("Modify movie");
 	private final Button removeMovieButton = new Button("Remove movie");
-	private DataBaseActions dataBaseActions = new DataBaseActions();
-	private final GridPane gridPane;
+	private TextField selectMovieField = new TextField();
+	private Button modButton = new Button("Modify");
+	private Button removeButton = new Button("Remove");
+	private Button changeValuesButton = new Button("Change values");
 	private Button addOkButton = new Button("OK");
 	private TextField addTitle;
 	private TextField addLength;
 
-	public ModMovieScreen(final GridPane gridPane) {
+	public ModMovieScreen(final GridPane gridPane, DataBaseActions dataBaseActions2) {
 		this.gridPane = gridPane;
-		this.dataBaseActions.connect();
+		this.dataBaseActions = dataBaseActions2;
 
 		initButtons();
 
@@ -34,22 +42,52 @@ public class ModMovieScreen {
 			public void handle(ActionEvent e) {
 
 				if (e.getSource() == addMovieButton) {
+					gridPane.getChildren().clear();
+					initButtons();
 					createMovie();
 				}
 				if (e.getSource() == modifyMovieButton) {
-
+					selectMovieField.setText(null);
+					gridPane.getChildren().clear();
+					initButtons();
+					createModifyMovieScreen();
 				}
 				if (e.getSource() == removeMovieButton) {
-
+					selectMovieField.setText(null);
+					gridPane.getChildren().clear();
+					initButtons();
+					gridPane.add(new Label("Choose movie"), 0, 4);
+					gridPane.add(selectMovieField, 0, 5);
+					gridPane.add(removeButton, 1, 5);
 				}
-				if(e.getSource() == addOkButton) {
-					if(!addTitle.getText().isEmpty() && !addLength.getText().isEmpty()) {
-						addMovieToDatabase();
+				if (e.getSource() == modButton) {
+					if(!selectMovieField.getText().isEmpty()) {
+						modMovieName = selectMovieField.getText();
 						gridPane.getChildren().clear();
-						
-						new ShowModPane(gridPane);
-						
 						initButtons();
+						modifyMovie();
+					}
+				}
+				if (e.getSource() == addOkButton) {
+					if(!addTitle.getText().isEmpty() && !addLength.getText().isEmpty()) {
+						//addMovieToDatabase();
+						gridPane.getChildren().clear();
+						dataBaseActions.addMovie(addTitle.getText(),Integer.parseInt(addLength.getText()));
+						new ShowModPane(gridPane, dataBaseActions);
+					}
+				}
+				if (e.getSource() == changeValuesButton) {
+					changeValuesFromDatabase();
+				}
+				if (e.getSource() == removeButton) {
+					if(!selectMovieField.getText().isEmpty()) {
+						dataBaseActions.updateQuery("DELETE FROM connections WHERE showid = " +
+								"(SELECT id FROM shows WHERE moviename = '" + selectMovieField.getText() + "');");
+						dataBaseActions.updateQuery("DELETE FROM reservations WHERE showid = " +
+								"(SELECT id FROM shows WHERE moviename = '" + selectMovieField.getText() + "');");
+						dataBaseActions.updateQuery("DELETE FROM movies WHERE name = '" + selectMovieField.getText() + "';");
+						dataBaseActions.updateQuery("DELETE FROM shows WHERE moviename = '" + selectMovieField.getText() + "';");
+						selectMovieField.setText(null);
 					}
 				}
 			}			
@@ -58,24 +96,28 @@ public class ModMovieScreen {
 		modifyMovieButton.setOnAction(eventHandler);
 		removeMovieButton.setOnAction(eventHandler);
 		addOkButton.setOnAction(eventHandler);
-
+		modButton.setOnAction(eventHandler);
+		removeButton.setOnAction(eventHandler);
+		changeValuesButton.setOnAction(eventHandler);
+		
 	}
 
 	public HBox getBox() {
-		return buttons;
+		return hBox;
 	}
 
 	private void initButtons() {
-		this.buttons = new HBox(10);
-		buttons.getChildren().add(addMovieButton);
-		buttons.getChildren().add(modifyMovieButton);
-		buttons.getChildren().add(removeMovieButton);
-		gridPane.add(buttons, 0, 2);
-		System.out.println("JEE!");
+		this.hBox = new HBox(10);
+		hBox.getChildren().add(addMovieButton);
+		hBox.getChildren().add(modifyMovieButton);
+		hBox.getChildren().add(removeMovieButton);
+		hBox.setVisible(false);
+		
+		gridPane.add(hBox, 0, 2);
+		Transitions.fadeIn(hBox);
 	}
 
 	private void createMovie() {
-		// TODO Auto-generated method stub
 		gridPane.add(new Label("Movie title: "), 0, 4);
 		addTitle = new TextField();
 		gridPane.add(addTitle, 1, 4);
@@ -83,11 +125,28 @@ public class ModMovieScreen {
 		addLength = new TextField();
 		gridPane.add(addLength, 1, 5);
 		gridPane.add(addOkButton, 1, 6);
+		
+		Group group = new Group();
+		group.getChildren().addAll(addTitle, addLength, addOkButton);
+		group.setVisible(false);
+		Transitions.fadeIn(group);
 	}
 
-	private void addMovieToDatabase() {
-		// TODO Auto-generated method stub
-		dataBaseActions.updateQuery("INSERT INTO movies (" + addTitle.getText() + "," + Integer.parseInt(addLength.getText()) + ");");
+	private void createModifyMovieScreen() {
+		gridPane.add(new Label("Select movie"), 0, 4);
+		gridPane.add(selectMovieField, 0, 5);
+		gridPane.add(modButton, 1, 5);
+	}
+
+	private void modifyMovie() {
+		gridPane.add(new Label("Length: "), 0, 5);
+		addLength = new TextField();
+		gridPane.add(addLength, 1, 5);
+		gridPane.add(changeValuesButton, 1, 6);
+	}
+
+	private void changeValuesFromDatabase() {
+		dataBaseActions.updateMovie(Integer.parseInt(addLength.getText()), modMovieName);
 	}
 
 }

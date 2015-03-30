@@ -1,54 +1,54 @@
 package ticketReservationSystem;
 
-import java.util.Collection;
-
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-// full Screen Window for the actual activities in  our system.
-// Experimentally extends stage, as we need a new one for the activities
+/**
+ * The main fullscreen Stage used to navigate between different parts of the program.
+ * Conatins a HBox and VBox to contain the buttons used for navigation and a GridPane in the middle of the screen
+ * used for displaying various controls and options. We then  swap the GridPane with another one when 
+ * we want to show various things. At this point we do not change the Scene anymore.
+ * @author joel
+ *
+ */
 public class ReservationSystemActivities extends Stage {
 	
-	private DataBaseActions dataBaseActions = new DataBaseActions();
+	private DataBaseActions dataBaseActions;
 	
 	private final Button logoutButton = new Button("Logout");
 	private final Button exitButton = new Button("Exit");
 	private final Button browseMoviesButton = new Button("Browse movies");
 	private final Button myReservationsButton = new Button("Reservations");
-	private final Button makeReservationButton = new Button("Print userList");
 	
 	private HBox hBoxTop = new HBox(10);
 	private VBox vBoxSide = new VBox(30);
-	private GridPane p = new GridPane();
-	private ScrollPane gf = new ScrollPane();
+	private GridPane gridPane = new GridPane();
+	private ScrollPane scrollPane = new ScrollPane();
+	private String username;
 
-	public ReservationSystemActivities(BorderPane borderPane) {
-		dataBaseActions.connect();
-	
-		p.setHgap(10);
-		p.setVgap(10);
-		p.setPadding(new Insets(25,25,25,25));
-		  p.add(new Movietile().getTile(),0,0);
-		  p.add(new Movietile().getTile(),0,1);
-		gf.setHbarPolicy(ScrollBarPolicy.NEVER);
-		gf.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		gf.setContent(p);
+	public ReservationSystemActivities(BorderPane borderPane, final DataBaseActions dataBaseActions2) {
+		this.username = LoginScene.GLOBAL_USER.getUserName();
+		this.dataBaseActions = dataBaseActions2;
+		
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		gridPane.setPadding(new Insets(25,25,25,25));
+		
+		scrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
+		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollPane.setContent(gridPane);
 		
 		// Whatever is inside the the top bar, is located on the right.
 		hBoxTop.setAlignment(Pos.BASELINE_RIGHT); 
@@ -62,19 +62,16 @@ public class ReservationSystemActivities extends Stage {
 				
 				if (e.getSource() == myReservationsButton) {
 					System.out.println("My Reservations");
-				}
-				// For checking the userList.
-				if (e.getSource() == makeReservationButton) {
-					System.out.println("Make a Reservation");
-			
+					gridPane.getChildren().clear();
+					new MyReservations(dataBaseActions, gridPane);
 					
-					UserList userList = new UserList();
-					userList.initializeLists();
-					userList.parseUserList(dataBaseActions.selectQuery("SELECT * FROM users;"));
-					userList.printuserList();
-				} 
+				}
+
 				if (e.getSource()== browseMoviesButton) {
 					System.out.println("Browse movies");
+					
+					gridPane.getChildren().clear();
+					new MovieDisplayScreen(gridPane, dataBaseActions);
 				}
 				if (e.getSource() == logoutButton) {
 					System.out.println("Logout");
@@ -86,7 +83,7 @@ public class ReservationSystemActivities extends Stage {
 					GridPane gridPane = new GridPane();
 
 					// We create a new LoginScreen and go back to the start.
-					LoginScene loginScene = new LoginScene(primaryStage, gridPane);
+					LoginScene loginScene = new LoginScene(primaryStage, gridPane, dataBaseActions2);
 					primaryStage.setScene(loginScene);
 					primaryStage.show();
 					// And then we close our main(this) window.
@@ -94,7 +91,7 @@ public class ReservationSystemActivities extends Stage {
 				}
 				if (e.getSource() == exitButton) {
 					new CommonAlertDialogs(new GridPane(),"You will be logged off and program will be closed");
-					dataBaseActions.closeAll();
+					dataBaseActions2.closeAll();
 					ReservationSystemActivities.this.close();
 				}
 			}
@@ -104,19 +101,16 @@ public class ReservationSystemActivities extends Stage {
 		logoutButton.setOnAction(eventHandler);
 		browseMoviesButton.setOnAction(eventHandler);
 		myReservationsButton.setOnAction(eventHandler);
-		makeReservationButton.setOnAction(eventHandler);
 		exitButton.setOnAction(eventHandler);
 
-		// adding buttons to elements
-		hBoxTop.getChildren().addAll(logoutButton, exitButton);
-		vBoxSide.getChildren().addAll(myReservationsButton, makeReservationButton, browseMoviesButton);
-		// add content to grid panel
+		// adding Nodes(buttons) to their Parents(panels).
+		hBoxTop.getChildren().addAll(new Text(username), logoutButton, exitButton);
+		vBoxSide.getChildren().addAll(myReservationsButton, browseMoviesButton);
 		
-
 		// setting stuff to borderpane
 		borderPane.setTop(hBoxTop);
 		borderPane.setLeft(vBoxSide);
-		borderPane.setCenter(gf);
+		borderPane.setCenter(scrollPane);
 		borderPane.setPrefSize(1350.0, 700.0);
 		// If we want true fullscreen, we set the Stage fullscreen.
 		this.setFullScreen(true);

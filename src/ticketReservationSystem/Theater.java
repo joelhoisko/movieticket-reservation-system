@@ -15,7 +15,6 @@ public class Theater {
 	private ArrayList<Movie> movies;
 	private ArrayList<Show> shows;
 	
-	
 	public Theater(ArrayList<Hall> halls, String name, ArrayList<Movie> movies, ArrayList<Show> shows) {
 		this.halls = halls;
 		this.name = name;
@@ -56,7 +55,7 @@ public class Theater {
 
 
 	public ArrayList<Show> getShows() {
-		return shows;
+		return this.shows;
 	}
 
 

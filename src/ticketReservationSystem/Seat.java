@@ -7,27 +7,23 @@ package ticketReservationSystem;
  */
 public class Seat {
 	
-	private Hall hall;
-	
+	private int iD;
 	private int seatNumber;
-	private int state;
-	private int[][] seatLocation;
+	private int row;
+	private int column;
 	
-	public Seat(Hall hall, int seatNumber, int state, int[][] seatLocation) {
-		this.hall = hall;
+	public Seat(int seatNumber, int row, int column, int seatId) {
+		
 		this.seatNumber = seatNumber;
-		this.state = state;
-		this.seatLocation = seatLocation;
+		this.row = row;
+		this.column = column;
+		this.iD = seatId;
 	}
 	
 	/* GETTERSETTER */
 
-	public Hall getHall() {
-		return hall;
-	}
-
-	public void setHall(Hall hall) {
-		this.hall = hall;
+	public int getId() {
+		return iD;
 	}
 
 	public int getSeatNumber() {
@@ -38,20 +34,16 @@ public class Seat {
 		this.seatNumber = seatNumber;
 	}
 
-	public int getState() {
-		return state;
+	public int[] getSeatLocation() {
+		int[] location = new int[2];
+		location[0] = row;
+		location[1] = column;
+		return location ;
 	}
 
-	public void setState(int state) {
-		this.state = state;
-	}
-
-	public int[][] getSeatLocation() {
-		return seatLocation;
-	}
-
-	public void setSeatLocation(int[][] seatLocation) {
-		this.seatLocation = seatLocation;
+	public void setSeatLocation(int row, int column) {
+		this.row = row;
+		this.column = column;
 	}
 	
 }

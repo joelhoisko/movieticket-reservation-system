@@ -1,6 +1,5 @@
 package ticketReservationSystem;
 
-import java.util.ArrayList;
 
 /**
  * A single Reservation contains a Show, the reserving Customer and the Seats 
@@ -14,16 +13,16 @@ public class Reservation {
 	
 	private Theater theater;
 	private Show show;
-	private ArrayList<Seat> seats;
+	private Seat seat;
 
 	private Customer customer;
 	
-	public Reservation(int iD, Theater theater, Show show, ArrayList<Seat> seats, Customer customer) {
+	public Reservation(int iD, Theater theater, Show show, Seat  seat, Customer customer) {
 		super();
 		this.iD = iD;
 		this.theater = theater;
 		this.show = show;
-		this.seats = seats;
+		this.seat = seat;
 		this.setCustomer(customer);
 	}
 	
@@ -53,12 +52,8 @@ public class Reservation {
 		this.show = show;
 	}
 
-	public ArrayList<Seat> getSeats() {
-		return seats;
-	}
-
-	public void setSeats(ArrayList<Seat> seats) {
-		this.seats = seats;
+	public Seat getSeat() {
+		return seat;
 	}
 
 	public Customer getCustomer() {

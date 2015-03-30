@@ -10,6 +10,18 @@
 	-fx-text-fill: white;
 }
 
+.toggle-button:pressed {
+	-fx-effect: innershadow(gaussian, #FFC31A, 10, 0.5, 0, 0);
+}
+
+.toggle-button:selected {
+	-fx-effect: innershadow(gaussian, #FFC31F, 10, 0.5, 0, 0);
+}
+
+.choice-box {
+	fx-effect: dropshadow(gaussian, red, 50, 0, 0, 0);
+}
+
 /* Defines the style of HBox(top pane). */
 .hbox {
 	-fx-background-color: #7094ff;
